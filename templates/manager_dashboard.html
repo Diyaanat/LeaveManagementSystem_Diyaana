@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Leave Approval{% endblock %}
+
+{% block page_header %}Manager Approval Portal{% endblock %}
+
+{% block content %}
+<!-- Subordinate Roster Table -->
+<div class="content-card" style="padding: 25px 0; margin-bottom: 35px;">
+    <div style="padding: 0 25px 20px 25px;">
+        <h3 class="card-title"><i class="fa-solid fa-users-gear" style="color: var(--primary); margin-right: 8px;"></i> Subordinate Roster</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">Tracking leave details and allocations of your direct reports</p>
+    </div>
+    
+    <div class="table-wrapper" style="border: none; border-radius: 0;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="padding-left: 25px;">Employee Details</th>
+                    <th>Job Title</th>
+                    <th>Annual Allocation</th>
+                    <th>Deducted</th>
+                    <th style="padding-right: 25px;">Leaves Remaining</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in roster %}
+                <tr>
+                    <td style="padding-left: 25px;">
+                        <div style="font-weight: 700; color: var(--text-heading);">{{ emp[1] }}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">{{ emp[2] }}</div>
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; font-size: 13.5px; color: var(--primary); background-color: var(--primary-glow); padding: 4px 10px; border-radius: 8px;">
+                            {{ emp[3] }}
+                        </span>
+                    </td>
+                    <td style="font-weight: 600;">{{ emp[4] }} days</td>
+                    <td style="font-weight: 600; color: var(--warning);">{{ emp[5] }} days</td>
+                    <td style="padding-right: 25px; font-weight: 800; color: var(--success);">{{ emp[6] }} days</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-light); padding: 40px 0;">No employees report directly to you.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pending Approvals section with ML Risk details -->
+<h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;"><i class="fa-solid fa-clipboard-check" style="color: var(--primary); margin-right: 8px;"></i> Pending Leave Applications</h3>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 30px;">
+    {% for req in requests %}
+    <div class="content-card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; border-left: 5px solid var(--primary);">
+        
+        <!-- Top: Employee details & Request Dates -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <h4 style="font-size: 16px; font-weight: 800; color: var(--text-heading);">{{ req.employee_name }}</h4>
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">{{ req.leave_type }} Leave</span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 700; font-size: 13.5px; color: var(--primary);">{{ req.start_date }}</div>
+                    <div style="font-size: 10px; color: var(--text-light); font-weight: 600; text-transform: uppercase; margin: 2px 0;">to</div>
+                    <div style="font-weight: 700; font-size: 13.5px; color: var(--primary);">{{ req.end_date }}</div>
+                </div>
+            </div>
+            
+            <div style="background-color: #f8fafc; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+                <div style="font-weight: 700; font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Reason:</div>
+                <div style="font-size: 13px; color: var(--text-body); font-style: italic;">"{{ req.reason }}"</div>
+            </div>
+
+            <!-- Subordinate history logs summary -->
+            <div style="margin-bottom: 20px;">
+                <div style="font-weight: 700; font-size: 10.5px; color: var(--text-light); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Recent Leave History:</div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    {% for h in req.history %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: rgba(248, 250, 252, 0.5); padding: 6px 10px; border-radius: 4px;">
+                        <span style="font-weight: 600; color: var(--text-body);">{{ h[0] }} ({{ h[1] }} → {{ h[2] }})</span>
+                        <span class="status-badge {% if h[3] == 'Approved' %}approved{% elif h[3] == 'Pending' %}pending{% else %}rejected{% endif %}" style="padding: 2px 8px; font-size: 10px;">{{ h[3] }}</span>
+                    </div>
+                    {% else %}
+                    <div style="font-size: 12px; color: var(--text-light); font-style: italic;">No previous leave logs recorded.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- AI Staffing & Deadline Collision Risk Assessment Panel -->
+            <div class="ai-risk-panel">
+                <div class="ai-header">
+                    <i class="fa-solid fa-microchip-ai" style="font-size: 16px;"></i> AI Staffing & Deadline Analyzer
+                </div>
+                
+                <div class="ai-metric-grid">
+                    <div class="ai-metric-box">
+                        <div class="ai-label">Staffing Coverage Risk</div>
+                        <div class="ai-val {% if req.ml.staffing_risk == 'High' %}high{% elif req.ml.staffing_risk == 'Medium' %}medium{% else %}low{% endif %}">
+                            {{ req.ml.staffing_risk }} Risk
+                        </div>
+                        <div style="font-size: 10.5px; color: var(--text-light); margin-top: 3px; font-weight: 600;">
+                            {{ req.ml.overlap_count }} overlap(s) ({{ req.ml.overlap_ratio_pct }}% team)
+                        </div>
+                    </div>
+                    <div class="ai-metric-box">
+                        <div class="ai-label">Deadline Proximity Risk</div>
+                        <div class="ai-val {% if req.ml.deadline_risk == 'Critical' %}critical{% elif req.ml.deadline_risk == 'Risky' %}risky{% else %}safe{% endif %}">
+                            {{ req.ml.deadline_risk }}
+                        </div>
+                        <div style="font-size: 10.5px; color: var(--text-light); margin-top: 3px; font-weight: 600;">
+                            {% if req.ml.days_to_deadline == 99 %}
+                            No pending deadlines
+                            {% else %}
+                            Deadline in {{ req.ml.days_to_deadline }} day(s)
+                            {% endif %}
+                            {% if req.ml.busy_season %} (Busy Season){% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-recommendation">
+                    <span style="color: #7e22ce; font-weight: 800;">Suggestion:</span> {{ req.ml.recommendation }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom: Forms for actions (Approve / Reject) -->
+        <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <div style="display: flex; gap: 15px;" id="action_buttons_{{ req.id }}">
+                <form method="POST" action="/leave/manage" style="flex: 1;">
+                    <input type="hidden" name="req_id" value="{{ req.id }}">
+                    <input type="hidden" name="action" value="Approved">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-regular fa-circle-check"></i> Approve
+                    </button>
+                </form>
+                <button type="button" class="btn btn-danger" style="flex: 1;" onclick="showRejectionForm({{ req.id }})">
+                    <i class="fa-regular fa-circle-xmark"></i> Reject
+                </button>
+            </div>
+            
+            <!-- Inline Rejection remarks input -->
+            <div id="rejection_form_{{ req.id }}" style="display: none; animation: slideDown 0.25s ease-out;">
+                <form method="POST" action="/leave/manage">
+                    <input type="hidden" name="req_id" value="{{ req.id }}">
+                    <input type="hidden" name="action" value="Rejected">
+                    <div class="form-group">
+                        <label class="form-label" style="font-size: 11px; color: var(--danger);">Reason for Rejection (Required)</label>
+                        <input type="text" name="remarks" class="form-control" placeholder="Provide reason for rejecting this leave request..." required>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-danger" style="padding: 10px; font-size: 13px;">Confirm Rejection</button>
+                        <button type="button" class="btn btn-secondary" style="padding: 10px; font-size: 13px; width: auto;" onclick="hideRejectionForm({{ req.id }})">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    {% else %}
+    <div class="content-card" style="grid-column: 1 / -1; text-align: center; color: var(--text-light); padding: 50px 0;">
+        <i class="fa-solid fa-envelope-open" style="font-size: 35px; color: var(--text-light); margin-bottom: 15px;"></i>
+        <p>No pending leave applications to review. You are all caught up!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showRejectionForm(reqId) {
+        document.getElementById(`action_buttons_${reqId}`).style.display = 'none';
+        document.getElementById(`rejection_form_${reqId}`).style.display = 'block';
+    }
+
+    function hideRejectionForm(reqId) {
+        document.getElementById(`action_buttons_${reqId}`).style.display = 'flex';
+        document.getElementById(`rejection_form_${reqId}`).style.display = 'none';
+    }
+</script>
+{% endblock %}

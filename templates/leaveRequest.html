@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Apply Leave{% endblock %}
+
+{% block page_header %}Leave Applications{% endblock %}
+
+{% block content %}
+<!-- Metrics cards showing individual balances -->
+<section class="card-grid" style="margin-bottom: 30px;">
+    <div class="metric-card">
+        <div class="metric-label">Yearly Leaves Granted</div>
+        <div class="metric-value">{{ total_leaves }}</div>
+        <div class="metric-desc">Base allocation for your account</div>
+    </div>
+    
+    <div class="metric-card warning">
+        <div class="metric-label">Deducted Leaves</div>
+        <div class="metric-value" style="color: var(--warning);">{{ leaves_taken }}</div>
+        <div class="metric-desc">Approved requested leaves</div>
+    </div>
+    
+    <div class="metric-card success">
+        <div class="metric-label">Current Balance</div>
+        <div class="metric-value" style="color: var(--success);">{{ remaining_leaves }}</div>
+        <div class="metric-desc">Available leaves remaining</div>
+    </div>
+</section>
+
+<!-- Content Grid (Form left, Logs right) -->
+<div class="dashboard-layout">
+    
+    <!-- Left: Request Form -->
+    <div class="content-card">
+        <h3 class="card-title" style="margin-bottom: 20px;"><i class="fa-solid fa-file-pen" style="color: var(--primary); margin-right: 8px;"></i> File Leave Application</h3>
+        
+        <form method="POST" action="/leave/request">
+            <div class="form-group">
+                <label class="form-label" for="leave_type">Leave Classification</label>
+                <select name="leave_type" id="leave_type" class="form-control" required>
+                    <option value="Casual">Casual Leave</option>
+                    <option value="Sick">Sick Leave</option>
+                    <option value="Menstrual">Menstrual Leave</option>
+                    <option value="Paid">Paid Leave</option>
+                    <option value="Maternal">Maternal Leave</option>
+                    <option value="Paternal">Paternal Leave</option>
+                    <option value="Bereavement">Bereavement Leave</option>
+                </select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="start_date">Start Date</label>
+                    <div style="position: relative;">
+                        <i class="fa-regular fa-calendar-plus" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); z-index: 10;"></i>
+                        <input type="text" 
+                               name="start_date" 
+                               id="start_date" 
+                               class="form-control datepicker" 
+                               style="padding-left: 45px;" 
+                               placeholder="Select start date" 
+                               required 
+                               readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="end_date">End Date</label>
+                    <div style="position: relative;">
+                        <i class="fa-regular fa-calendar-check" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); z-index: 10;"></i>
+                        <input type="text" 
+                               name="end_date" 
+                               id="end_date" 
+                               class="form-control datepicker" 
+                               style="padding-left: 45px;" 
+                               placeholder="Select end date" 
+                               required 
+                               readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live days calculation display -->
+            <div id="date_calc_display" style="display: none; padding: 12px; border-radius: var(--radius-sm); background: #f1f5f9; margin-bottom: 20px; font-size: 13.5px; border-left: 4px solid var(--primary); font-weight: 500;">
+                <!-- Displayed dynamically by script.js -->
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label class="form-label" for="reason">Reason / Description</label>
+                <textarea name="reason" 
+                          id="reason" 
+                          rows="4" 
+                          class="form-control" 
+                          style="resize: none;" 
+                          placeholder="Provide detailed explanation for your leave request..." 
+                          required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                Submit Application <i class="fa-regular fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Right: History log -->
+    <div class="content-card" style="padding: 25px 0;">
+        <div style="padding: 0 25px 20px 25px;">
+            <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary); margin-right: 8px;"></i> Personal Leave History</h3>
+        </div>
+        
+        <div class="table-wrapper" style="border: none; border-radius: 0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="padding-left: 25px;">Leave Details</th>
+                        <th>Duration Window</th>
+                        <th>Status</th>
+                        <th style="padding-right: 25px; text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history %}
+                    <tr>
+                        <td style="padding-left: 25px;">
+                            <div style="font-weight: 700; color: var(--text-heading);">{{ item[1] }} Leave</div>
+                            <div style="font-size: 12px; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ item[4] }}">
+                                {{ item[4] }}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; font-size: 13px;">{{ item[2] }} <i class="fa-solid fa-arrow-right-long" style="font-size: 10px; color: var(--text-light); margin: 0 4px;"></i> {{ item[3] }}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if item[5] == 'Approved' %}approved{% elif item[5] == 'Pending' %}pending{% else %}rejected{% endif %}">
+                                {{ item[5] }}
+                            </span>
+                            {% if item[5] == 'Rejected' and item[6] %}
+                                <div style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 3px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Rejection Reason: {{ item[6] }}">
+                                    Reason: "{{ item[6] }}"
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td style="padding-right: 25px; text-align: center;">
+                            {% if item[5] == 'Pending' or item[5] == 'Approved' %}
+                            <form method="POST" action="/leave/cancel/{{ item[0] }}" onsubmit="return confirm('Are you sure you want to cancel this leave application? Approved leaves will be restored to your leave balance.');">
+                                <button type="submit" class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px; color: var(--danger);">
+                                    <i class="fa-solid fa-trash-can"></i> Cancel
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="font-size: 12px; color: var(--text-light); font-weight: 600;">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-light); padding: 50px 0;">No leave logs recorded. Your applications will show here.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize datepickers
+    flatpickr(".datepicker", {
+        dateFormat: "Y-m-d",
+        minDate: "today"
+    });
+</script>
+{% endblock %}

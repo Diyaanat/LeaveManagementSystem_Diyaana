@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Profile Settings{% endblock %}
+
+{% block page_header %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout" style="grid-template-columns: 1fr 1.3fr;">
+    
+    <!-- Left panel: Profile preview card -->
+    <div class="content-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 30px;">
+        <div class="avatar-badge" style="width: 90px; height: 90px; font-size: 36px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);">
+            {{ profile[0][0].upper() }}
+        </div>
+        
+        <h3 style="font-size: 22px; font-weight: 800; color: var(--text-heading); margin-bottom: 5px;">{{ profile[0] }}</h3>
+        <span style="font-weight: 700; font-size: 13px; color: var(--primary); background-color: var(--primary-glow); padding: 5px 14px; border-radius: 50px; margin-bottom: 25px; text-transform: uppercase;">
+            {{ profile[2] }}
+        </span>
+        
+        <div style="width: 100%; border-top: 1px solid var(--border); padding-top: 25px; text-align: left; display: flex; flex-direction: column; gap: 15px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted); font-weight: 600;">Work Email:</span>
+                <span style="font-weight: 700; color: var(--text-heading);">{{ profile[6] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted); font-weight: 600;">Username:</span>
+                <span style="font-weight: 700; color: var(--text-heading);">@{{ profile[7] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted); font-weight: 600;">Reports To:</span>
+                <span style="font-weight: 700; color: var(--text-heading);">
+                    {% if profile[3] %}
+                        {{ profile[3] }}
+                    {% else %}
+                        <span style="color: var(--text-light); font-style: italic;">No Manager Assigned</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted); font-weight: 600;">System Level:</span>
+                <span style="font-weight: 700; color: var(--primary); text-transform: capitalize;">{{ profile[4] }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right panel: Update Profile specifications form -->
+    <div class="content-card">
+        <h3 class="card-title" style="margin-bottom: 20px;"><i class="fa-solid fa-user-pen" style="color: var(--primary); margin-right: 8px;"></i> Edit Profile Details</h3>
+        
+        <form method="POST" action="/profile">
+            <div class="form-group">
+                <label class="form-label" for="position">Job Position / Designation</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-briefcase" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
+                    <input type="text" 
+                           id="position" 
+                           name="position" 
+                           class="form-control" 
+                           style="padding-left: 45px;" 
+                           value="{{ profile[2] }}" 
+                           placeholder="e.g. Senior Frontend Developer" 
+                           required>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="dob">Date of Birth</label>
+                    <div style="position: relative;">
+                        <i class="fa-regular fa-calendar" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); z-index: 10;"></i>
+                        <input type="text" 
+                               id="dob" 
+                               name="dob" 
+                               class="form-control datepicker" 
+                               style="padding-left: 45px;" 
+                               value="{% if profile[1] %}{{ profile[1] }}{% endif %}" 
+                               placeholder="Select date of birth" 
+                               readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="gender">Gender</label>
+                    <select id="gender" name="gender" class="form-control">
+                        <option {% if session.get('gender') == 'Male' %}selected{% endif %}>Male</option>
+                        <option {% if session.get('gender') == 'Female' %}selected{% endif %}>Female</option>
+                        <option {% if session.get('gender') == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                Sync Profile Configuration <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    flatpickr("#dob", {
+        dateFormat: "Y-m-d",
+        maxDate: new Date().fp_incr(-365 * 18) // Must be at least 18 years old
+    });
+</script>
+{% endblock %}

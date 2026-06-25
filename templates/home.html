@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_header %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<!-- Metric Cards Grid -->
+<section class="card-grid">
+    <div class="metric-card">
+        <div class="metric-label">Annual Allocation</div>
+        <div class="metric-value">{{ total_leaves }}</div>
+        <div class="metric-desc">Total days granted yearly</div>
+    </div>
+    
+    <div class="metric-card warning">
+        <div class="metric-label">Leaves Utilized</div>
+        <div class="metric-value" style="color: var(--warning);">{{ leaves_taken }}</div>
+        <div class="metric-desc">Approved requested leaves</div>
+    </div>
+    
+    <div class="metric-card success">
+        <div class="metric-label">Remaining Balance</div>
+        <div class="metric-value" style="color: var(--success);">{{ remaining_leaves }}</div>
+        <div class="metric-desc">Available vacation days left</div>
+    </div>
+</section>
+
+<!-- Dashboard Grid (Calendar + Right Widget Side) -->
+<div class="dashboard-layout">
+    
+    <!-- Left Panel: Calendar visualizer -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fa-regular fa-calendar-days" style="color: var(--primary); margin-right: 8px;"></i> Leave & Deadline Calendar</h3>
+            <div style="font-size: 12px; font-weight: 600; display: flex; gap: 10px;">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: var(--success); border-radius: 50%;"></span> Approved</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: var(--warning); border-radius: 50%;"></span> Pending</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: var(--info); border-radius: 50%;"></span> Tasks</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: #7c3aed; border-radius: 50%;"></span> Team Leaves</span>
+            </div>
+        </div>
+        
+        <div id="calendar_container" style="min-height: 480px;">
+            <!-- Rendered dynamically by script.js -->
+        </div>
+    </div>
+    
+    <!-- Right Panel: Tasks, Quick Scheduler & Breakdown -->
+    <div>
+        
+        <!-- Task Deadlines Widget -->
+        <div class="content-card" style="padding-bottom: 20px;">
+            <div class="card-header" style="margin-bottom: 15px;">
+                <h3 class="card-title"><i class="fa-solid fa-list-check" style="color: var(--info); margin-right: 8px;"></i> My Active Tasks</h3>
+                <button class="btn btn-secondary" onclick="toggleTaskForm()" style="width: auto; padding: 6px 12px; font-size: 12px;">
+                    <i class="fa-solid fa-plus"></i> Add Task
+                </button>
+            </div>
+            
+            <!-- Quick Add Task Form -->
+            <div id="quick_task_form" style="display: none; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 15px; margin-bottom: 20px; animation: slideDown 0.25s ease-out;">
+                <form method="POST" action="/home">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label class="form-label" style="font-size: 10px;">Project Name</label>
+                            <input type="text" name="project_name" class="form-control" style="padding: 8px 12px; font-size: 13px;" placeholder="e.g. API Integration" required>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 10px;">Task Description</label>
+                            <input type="text" name="task_name" class="form-control" style="padding: 8px 12px; font-size: 13px;" placeholder="e.g. Write tests" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; align-items: flex-end;">
+                        <div>
+                            <label class="form-label" style="font-size: 10px;">Deadline Date</label>
+                            <input type="text" name="deadline" id="task_deadline" class="form-control datepicker" style="padding: 8px 12px; font-size: 13px;" placeholder="Select date" required readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding: 9px 12px; font-size: 13px;">Save</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Task List -->
+            <div style="max-height: 230px; overflow-y: auto; padding-right: 5px;">
+                {% for t in tasks %}
+                <div class="task-item">
+                    <div class="task-content">
+                        <div class="task-checkbox {% if t[4] == 'Completed' %}checked{% endif %}" data-id="{{ t[0] }}"></div>
+                        <div class="task-details">
+                            <span class="task-project">{{ t[1] }}</span>
+                            <span class="task-name {% if t[4] == 'Completed' %}checked{% endif %}" id="task-text-{{ t[0] }}">{{ t[2] }}</span>
+                        </div>
+                    </div>
+                    <div class="task-deadline">
+                        <i class="fa-regular fa-calendar-times"></i> {{ t[3] }}
+                    </div>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--text-light); font-size: 14px; padding: 25px 0;">No active tasks assigned.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Doughnut Breakdown Chart & Activity Logs -->
+        <div class="content-card">
+            <h3 class="card-title" style="margin-bottom: 20px;"><i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-right: 8px;"></i> Leave Statistics</h3>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 20px;">
+                <!-- Chart canvas -->
+                <div style="width: 130px; height: 130px; position: relative;">
+                    <canvas id="breakdownChart"></canvas>
+                </div>
+                
+                <!-- Chart legends -->
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 12px; height: 12px; background-color: var(--success); border-radius: 4px;"></span>
+                        <span>Approved: {{ chart_data.approved }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 12px; height: 12px; background-color: var(--warning); border-radius: 4px;"></span>
+                        <span>Pending: {{ chart_data.pending }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 12px; height: 12px; background-color: var(--danger); border-radius: 4px;"></span>
+                        <span>Rejected: {{ chart_data.rejected }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid var(--border); padding-top: 15px;">
+                <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.5px;">Recent Leave Activities</h4>
+                
+                {% for n in notifications %}
+                <div class="notification-item">
+                    <span class="noti-dot {% if n[3] == 'Approved' %}approved{% elif n[3] == 'Pending' %}pending{% else %}rejected{% endif %}"></span>
+                    <div class="noti-text">
+                        Your <strong>{{ n[0] }} Leave</strong> application ({{ n[1] }} to {{ n[2] }}) was marked as <strong>{{ n[3] }}</strong>.
+                        {% if n[4] %}
+                        <div class="noti-time">Reason: "{{ n[4] }}"</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <p style="font-size: 13px; color: var(--text-light); text-align: center; padding: 10px 0;">No activities logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Send calendar events variable to script.js -->
+<script>
+    window.calendarEvents = {{ calendar_events | tojson }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize date picker for task form
+    flatpickr("#task_deadline", { 
+        dateFormat: "Y-m-d",
+        minDate: "today"
+    });
+
+    // Toggle Task Form
+    function toggleTaskForm() {
+        const form = document.getElementById('quick_task_form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Doughnut breakdown chart rendering
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('breakdownChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [{{ chart_data.approved }}, {{ chart_data.pending }}, {{ chart_data.rejected }}],
+                    backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+                    borderWidth: 0,
+                    weight: 1
+                }]
+            },
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LeavePortal{% endblock %} | Leave Management System</title>
+    
+    <!-- Icons and Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="auth-logo-icon">LP</div>
+                <div class="auth-logo-text">LeavePortal</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/home" class="nav-item {% if request.path == '/home' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="/leave/request" class="nav-item {% if request.path == '/leave/request' or request.path == '/leave' %}active{% endif %}">
+                    <i class="fa-solid fa-paper-plane"></i> Apply Leave
+                </a>
+                
+                {% if session.get('is_manager_of_team') %}
+                <a href="/leave/manage" class="nav-item {% if request.path == '/leave/manage' %}active{% endif %}">
+                    <i class="fa-solid fa-list-check"></i> Leave Approval
+                </a>
+                {% endif %}
+                
+                <a href="/profile" class="nav-item {% if request.path == '/profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear"></i> Profile Settings
+                </a>
+                <a href="/account" class="nav-item {% if request.path == '/account' %}active{% endif %}">
+                    <i class="fa-solid fa-shield-halved"></i> Security & Account
+                </a>
+            </nav>
+            
+            <div class="sidebar-profile">
+                <div class="avatar-badge">
+                    {{ session.get('user_name', 'E')[0].upper() }}
+                </div>
+                <div class="profile-details">
+                    <div class="profile-name">{{ session.get('user_name', 'Employee') }}</div>
+                    <div class="profile-role">{{ session.get('user_role', 'employee') }}</div>
+                </div>
+                <a href="/logout" title="Sign Out" style="margin-left: auto; color: var(--danger); font-size: 16px;">
+                    <i class="fa-solid fa-power-off"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="main-wrapper">
+            <header class="top-bar">
+                <div class="page-title">
+                    {% block page_header %}Dashboard{% endblock %}
+                </div>
+                <div style="font-size: 13px; font-weight: 600; color: var(--text-muted);">
+                    <i class="fa-regular fa-clock"></i> Local Time: 2026-06-25
+                </div>
+            </header>
+            
+            <main class="content-body">
+                <!-- Alert Banner Notifications -->
+                <div class="alert-container">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{% if category == 'danger' %}danger{% elif category == 'success' %}success{% elif category == 'warning' %}warning{% else %}info{% endif %}">
+                                    <i class="fa-solid {% if category == 'danger' %}fa-circle-xmark{% elif category == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}" style="margin-right: 10px;"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | LeavePortal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body" style="padding: 40px 20px;">
+
+    <div class="auth-card" style="max-width: 550px; padding: 35px;">
+        <div class="auth-logo">
+            <div class="auth-logo-icon">LP</div>
+            <div class="auth-logo-text">LeavePortal</div>
+        </div>
+        
+        <h2 class="auth-title">Register Account</h2>
+        <p class="auth-subtitle">Join LeavePortal to track leaves & tasks</p>
+        
+        <!-- Alerts block -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category == 'danger' %}danger{% else %}info{% endif %}" style="padding: 10px 15px; margin-bottom: 20px; font-size: 13px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label class="form-label" for="name">Full Name</label>
+                <div style="position: relative;">
+                    <i class="fa-regular fa-user" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
+                    <input type="text" id="name" name="name" class="form-control" style="padding-left: 45px;" placeholder="John Doe" required>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="email">Work Email</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="john@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="johndoe" required>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="password_strength">Password</label>
+                    <input type="password" id="password_strength" name="password" class="form-control" placeholder="Min. 8 chars" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Repeat password" required>
+                </div>
+            </div>
+
+            <!-- Password strength helper checklist -->
+            <div class="psw-strength-checklist" style="margin-bottom: 20px;">
+                <div style="font-weight: 700; font-size: 11px; margin-bottom: 5px; color: var(--text-muted); text-transform: uppercase;">Password Requirements:</div>
+                <div class="psw-item" id="req_length"><span class="indicator"></span> At least 8 characters</div>
+                <div class="psw-item" id="req_uppercase"><span class="indicator"></span> At least one uppercase letter (A-Z)</div>
+                <div class="psw-item" id="req_lowercase"><span class="indicator"></span> At least one lowercase letter (a-z)</div>
+                <div class="psw-item" id="req_number"><span class="indicator"></span> At least one numeric digit (0-9)</div>
+                <div class="psw-item" id="req_special"><span class="indicator"></span> At least one special symbol (_@$!%*#?&)</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="gender">Gender</label>
+                    <select id="gender" name="gender" class="form-control">
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="role">Portal Role</label>
+                    <select id="role" name="role" class="form-control">
+                        <option value="employee">Employee</option>
+                        <option value="manager">Manager / Lead</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label" for="position">Job Title / Position</label>
+                    <input type="text" id="position" name="position" class="form-control" placeholder="Software Engineer" required>
+                </div>
+                
+                <div class="form-group" id="manager_group">
+                    <label class="form-label" for="manager_id">Reporting Manager</label>
+                    <select id="manager_id" name="manager_id" class="form-control">
+                        <option value="">-- Select Reporting Manager --</option>
+                        {% for manager in managers %}
+                            <option value="{{ manager[0] }}">{{ manager[1] }} ({{ manager[2] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success" style="margin-top: 10px;">
+                Create Account <i class="fa-solid fa-user-plus"></i>
+            </button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-muted); font-weight: 500;">
+            Already registered? <a href="/login" style="font-weight: 700;">Sign In</a>
+        </p>
+    </div>
+
+    <!-- Script to dynamically handle manager visibility -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role');
+            const managerSelect = document.getElementById('manager_id');
+            const managerGroup = document.getElementById('manager_group');
+            
+            roleSelect.addEventListener('change', function() {
+                if (roleSelect.value === 'manager') {
+                    // Manager role doesn't require selecting a manager, but they can
+                    managerSelect.required = false;
+                } else {
+                    managerSelect.required = true;
+                }
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
