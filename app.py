@@ -73,33 +73,33 @@ class DatabaseEngine:
         # Managers
         cursor.execute(
             "INSERT INTO users (name, email, username, password, role, gender, position, total_leaves, leaves_taken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("Alice Smith", "alice@company.com", "alice", hashed_pw, "manager", "Female", "Engineering Director", 24, 0)
+            ("Diyaana Mariyam", "diyaana.a.r@gmail.com", "Diyaana", hashed_pw, "manager", "Female", "Engineering Director", 24, 0)
         )
         alice_id = cursor.lastrowid
         
         cursor.execute(
             "INSERT INTO users (name, email, username, password, role, gender, position, total_leaves, leaves_taken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("Bob Jones", "bob@company.com", "bob", hashed_pw, "manager", "Male", "Product Director", 24, 0)
+            ("Diya", "diyasvit3@gmail.com", "Diya", hashed_pw, "manager", "Female", "Product Director", 24, 0)
         )
         bob_id = cursor.lastrowid
         
         # Employees (under Alice)
         cursor.execute(
             "INSERT INTO users (name, email, username, password, role, gender, position, manager_id, total_leaves, leaves_taken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("Charlie Dev", "charlie@company.com", "charlie", hashed_pw, "employee", "Male", "Senior Backend Developer", alice_id, 24, 4)
+            ("Yadu Krishna", "mailyadurn@gmail.com", "Yadu", hashed_pw, "employee", "Male", "Senior Backend Developer", alice_id, 24, 4)
         )
         charlie_id = cursor.lastrowid
         
         cursor.execute(
             "INSERT INTO users (name, email, username, password, role, gender, position, manager_id, total_leaves, leaves_taken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("David Quality", "david@company.com", "david", hashed_pw, "employee", "Male", "QA Automation Engineer", alice_id, 24, 0)
+            ("Diyaana Mariyam", "diyasvit1@gmail.com", "DiyaanaM", hashed_pw, "employee", "Female", "QA Automation Engineer", alice_id, 24, 0)
         )
         david_id = cursor.lastrowid
         
         # Employee (under Bob)
         cursor.execute(
             "INSERT INTO users (name, email, username, password, role, gender, position, manager_id, total_leaves, leaves_taken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("Eve Design", "eve@company.com", "eve", hashed_pw, "employee", "Female", "Lead UI/UX Designer", bob_id, 24, 2)
+            ("Diya Mariyam", "diyasvit2@gmail.com", "DiyaM", hashed_pw, "employee", "Female", "Lead UI/UX Designer", bob_id, 24, 2)
         )
         eve_id = cursor.lastrowid
         
@@ -771,14 +771,18 @@ def manage_leaves():
         )
         
         days_to_deadline = 99  # safe default if no pending tasks
-        if emp_tasks:
-            # Parse closest deadline date
-            closest_deadline = emp_tasks[0][0]
-            if isinstance(closest_deadline, str):
-                dl_date = datetime.strptime(closest_deadline, '%Y-%m-%d').date()
+        for task_row in emp_tasks:
+            dl_val = task_row[0]
+            if isinstance(dl_val, str):
+                dl_date = datetime.strptime(dl_val, '%Y-%m-%d').date()
             else:
-                dl_date = closest_deadline
-            days_to_deadline = max(0, (dl_date - start_dt).days)
+                dl_date = dl_val
+            
+            # We only evaluate task collision if the deadline falls ON or AFTER the leave start date.
+            # Tasks due before the leave starts are expected to be finished and do not conflict.
+            if dl_date >= start_dt:
+                days_to_deadline = (dl_date - start_dt).days
+                break
             
         # Busy Season determination (e.g. Month of start date is June, July, Nov, Dec)
         is_busy_season = start_dt.month in [6, 7, 11, 12]
@@ -786,20 +790,21 @@ def manage_leaves():
         # Employee's pending task count
         emp_tasks_cnt = len(emp_tasks)
         
-        # ML Evaluate Risk prediction
+        # Calculate available staff (total direct reports minus requester and any overlapping approved leaves)
+        available_staff = max(0, team_size - 1 - overlap_count)
+        
+        # ML Evaluate Risk prediction using the Scikit-Learn Random Forest model
         ml_prediction = predictor.evaluate_leave(
-            team_size=team_size,
-            overlap_count=overlap_count,
-            active_tasks=team_tasks_count,
+            available_staff=available_staff,
             days_to_deadline=days_to_deadline,
-            busy_season=is_busy_season,
-            employee_tasks=emp_tasks_cnt
+            season=is_busy_season
         )
         
         # Append additional metrics for displaying in UI
-        ml_prediction['overlap_count'] = overlap_count
+        ml_prediction['available_staff'] = available_staff
         ml_prediction['days_to_deadline'] = days_to_deadline
         ml_prediction['busy_season'] = is_busy_season
+        ml_prediction['overlap_count'] = overlap_count
         ml_prediction['employee_tasks'] = emp_tasks_cnt
         
         enriched_pendings.append({
@@ -813,7 +818,15 @@ def manage_leaves():
             'ml': ml_prediction
         })
         
-    return render_template('manager_dashboard.html', roster=roster, requests=enriched_pendings)
+    # 3. Fetch direct reports' tasks and progress tracker
+    sub_tasks = db.execute(
+        "SELECT t.id, u.name, t.project_name, t.task_name, t.deadline, t.status "
+        "FROM tasks t JOIN users u ON t.user_id = u.id "
+        "WHERE u.manager_id = %s ORDER BY t.deadline ASC",
+        [uid]
+    )
+        
+    return render_template('manager_dashboard.html', roster=roster, requests=enriched_pendings, sub_tasks=sub_tasks)
 
 
 # ----------------- PROFILE / ACCOUNT MANAGEMENT -----------------

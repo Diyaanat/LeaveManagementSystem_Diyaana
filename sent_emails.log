@@ -1,6 +1,6 @@
 
 ========================================================================
-TIMESTAMP:   2026-06-25 03:33:17
+TIMESTAMP:   2026-06-26 13:22:00
 TO:          test_user@company.com
 SUBJECT:     Test Log Fallback
 SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
@@ -9,18 +9,18 @@ SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active)
 ========================================================================
 
 ========================================================================
-TIMESTAMP:   2026-06-25 11:09:49
-TO:          alice@company.com
+TIMESTAMP:   2026-06-26 13:24:11
+TO:          diyaana.a.r@gmail.com
 SUBJECT:     Security Alert: New Sign-in Detected
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
 ------------------------------------------------------------------------
 
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Alice Smith</h3>
+        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Diyaana Mariyam</h3>
         <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
         <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> alice@company.com</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-25 11:09:49 (Server Local Time)</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> diyaana.a.r@gmail.com</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-26 13:24:06 (Server Local Time)</p>
         </div>
         <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
     </div>
@@ -28,21 +28,40 @@ SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active)
 ========================================================================
 
 ========================================================================
-TIMESTAMP:   2026-06-25 11:12:32
-TO:          charlie@company.com
-SUBJECT:     Leave Request Update: Rejected
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
+TIMESTAMP:   2026-06-26 13:24:13
+TO:          diyaana.a.r@gmail.com
+SUBJECT:     Security Alert: New Sign-in Detected
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
 ------------------------------------------------------------------------
 
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #f43f5e; margin-bottom: 15px;">Leave Application Rejected</h3>
-        <p style="color: #334155; font-size: 15px;">Hello Charlie Dev,</p>
-        <p style="color: #334155; font-size: 15px;">Your manager, <strong>Alice Smith</strong>, has processed your leave request.</p>
+        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Diyaana Mariyam</h3>
+        <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
         <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 5px 0; color: #475569;"><strong>Leave Type:</strong> Sick</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Duration:</strong> 2026-06-29 to 2026-06-30</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Status:</strong> <span style="color: #f43f5e; font-weight: bold;">Rejected</span></p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Manager Remarks:</strong> Proximity to deadline.</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> diyaana.a.r@gmail.com</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-26 13:24:08 (Server Local Time)</p>
+        </div>
+        <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
+    </div>
+    
+========================================================================
+
+========================================================================
+TIMESTAMP:   2026-06-26 13:27:57
+TO:          anjalikrish2006@gmail.com
+SUBJECT:     Leave Request Update: Approved
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
+------------------------------------------------------------------------
+
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
+        <h3 style="color: #10b981; margin-bottom: 15px;">Leave Application Approved</h3>
+        <p style="color: #334155; font-size: 15px;">Hello Anjali Krishna,</p>
+        <p style="color: #334155; font-size: 15px;">Your manager, <strong>Diyaana Mariyam</strong>, has processed your leave request.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+            <p style="margin: 5px 0; color: #475569;"><strong>Leave Type:</strong> Casual</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Duration:</strong> 2026-07-15 to 2026-07-18</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Status:</strong> <span style="color: #10b981; font-weight: bold;">Approved</span></p>
+            
         </div>
         <p style="color: #64748b; font-size: 13px;">If you have any questions, please contact your reporting manager.</p>
     </div>
@@ -50,77 +69,81 @@ SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active)
 ========================================================================
 
 ========================================================================
-TIMESTAMP:   2026-06-25 11:57:47
-TO:          alice@company.com
-SUBJECT:     Security Alert: New Sign-in Detected
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
+TIMESTAMP:   2026-06-26 13:27:58
+TO:          anjalikrish2006@gmail.com
+SUBJECT:     Leave Request Update: Approved
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
 ------------------------------------------------------------------------
 
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Alice Smith</h3>
-        <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
-        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> alice@company.com</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-25 11:57:47 (Server Local Time)</p>
-        </div>
-        <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
-    </div>
-    
-========================================================================
-
-========================================================================
-TIMESTAMP:   2026-06-25 11:59:26
-TO:          charlie@company.com
-SUBJECT:     Security Alert: New Sign-in Detected
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
-------------------------------------------------------------------------
-
-    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Charlie Dev</h3>
-        <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
-        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> charlie@company.com</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-25 11:59:26 (Server Local Time)</p>
-        </div>
-        <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
-    </div>
-    
-========================================================================
-
-========================================================================
-TIMESTAMP:   2026-06-25 11:59:52
-TO:          alice@company.com
-SUBJECT:     New Leave Application: Charlie Dev (Casual)
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
-------------------------------------------------------------------------
-
-    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #4f46e5; margin-bottom: 15px;">Leave Approval Request</h3>
-        <p style="color: #334155; font-size: 15px;">Hello Alice Smith,</p>
-        <p style="color: #334155; font-size: 15px;">An employee reporting to you, <strong>Charlie Dev</strong>, has requested leave. Please review the details below:</p>
+        <h3 style="color: #10b981; margin-bottom: 15px;">Leave Application Approved</h3>
+        <p style="color: #334155; font-size: 15px;">Hello Anjali Krishna,</p>
+        <p style="color: #334155; font-size: 15px;">Your manager, <strong>Diyaana Mariyam</strong>, has processed your leave request.</p>
         <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
             <p style="margin: 5px 0; color: #475569;"><strong>Leave Type:</strong> Casual</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Duration:</strong> 2026-06-26 to 2026-06-30</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Reason:</strong> bla</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Duration:</strong> 2026-07-15 to 2026-07-18</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Status:</strong> <span style="color: #10b981; font-weight: bold;">Approved</span></p>
+            
         </div>
-        <p style="color: #334155; font-size: 14px;">Log in to the manager dashboard to view the team staffing risk, check deadline collisions, and approve/reject the request.</p>
+        <p style="color: #64748b; font-size: 13px;">If you have any questions, please contact your reporting manager.</p>
     </div>
     
 ========================================================================
 
 ========================================================================
-TIMESTAMP:   2026-06-25 12:00:15
-TO:          alice@company.com
-SUBJECT:     Security Alert: New Sign-in Detected
-SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) 
+TIMESTAMP:   2026-06-26 13:28:14
+TO:          anjalikrish2006@gmail.com
+SUBJECT:     Leave Request Update: Rejected
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
 ------------------------------------------------------------------------
 
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
-        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Alice Smith</h3>
+        <h3 style="color: #f43f5e; margin-bottom: 15px;">Leave Application Rejected</h3>
+        <p style="color: #334155; font-size: 15px;">Hello Anjali Krishna,</p>
+        <p style="color: #334155; font-size: 15px;">Your manager, <strong>Diyaana Mariyam</strong>, has processed your leave request.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+            <p style="margin: 5px 0; color: #475569;"><strong>Leave Type:</strong> Casual</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Duration:</strong> 2026-09-07 to 2026-09-08</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Status:</strong> <span style="color: #f43f5e; font-weight: bold;">Rejected</span></p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Manager Remarks:</strong> deadline approaching</p>
+        </div>
+        <p style="color: #64748b; font-size: 13px;">If you have any questions, please contact your reporting manager.</p>
+    </div>
+    
+========================================================================
+
+========================================================================
+TIMESTAMP:   2026-06-26 13:56:15
+TO:          diyaana.a.r@gmail.com
+SUBJECT:     Security Alert: New Sign-in Detected
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
+------------------------------------------------------------------------
+
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
+        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Diyaana Mariyam</h3>
         <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
         <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> alice@company.com</p>
-            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-25 12:00:15 (Server Local Time)</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> diyaana.a.r@gmail.com</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-26 13:56:10 (Server Local Time)</p>
+        </div>
+        <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
+    </div>
+    
+========================================================================
+
+========================================================================
+TIMESTAMP:   2026-06-26 13:56:17
+TO:          diyaana.a.r@gmail.com
+SUBJECT:     Security Alert: New Sign-in Detected
+SMTP STATUS: FAILED/NOT CONFIG (Fallback Logging Active) [timed out]
+------------------------------------------------------------------------
+
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0;">
+        <h3 style="color: #4f46e5; margin-bottom: 20px;">Hello, Diyaana Mariyam</h3>
+        <p style="color: #334155; font-size: 15px;">A new sign-in was detected for your LeavePortal account.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+            <p style="margin: 5px 0; color: #475569;"><strong>Account Email:</strong> diyaana.a.r@gmail.com</p>
+            <p style="margin: 5px 0; color: #475569;"><strong>Sign-in Time:</strong> 2026-06-26 13:56:12 (Server Local Time)</p>
         </div>
         <p style="color: #64748b; font-size: 13px;">If this was you, no action is required. If you did not initiate this login, please change your password immediately in your account portal.</p>
     </div>

@@ -49,6 +49,51 @@
     </div>
 </div>
 
+<!-- Subordinate Tasks & Progress Card -->
+<div class="content-card" style="padding: 25px 0; margin-bottom: 35px;">
+    <div style="padding: 0 25px 20px 25px;">
+        <h3 class="card-title"><i class="fa-solid fa-list-check" style="color: var(--info); margin-right: 8px;"></i> Subordinate Tasks & Progress</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">Monitor the deadlines and active tasks of your direct reports</p>
+    </div>
+    
+    <div class="table-wrapper" style="border: none; border-radius: 0;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="padding-left: 25px;">Assignee</th>
+                    <th>Project</th>
+                    <th>Task Description</th>
+                    <th>Deadline</th>
+                    <th style="padding-right: 25px; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in sub_tasks %}
+                <tr>
+                    <td style="padding-left: 25px; font-weight: 700; color: var(--text-heading);">{{ task[1] }}</td>
+                    <td>
+                        <span style="font-weight: 600; font-size: 12px; color: var(--primary); background-color: var(--primary-glow); padding: 3px 8px; border-radius: 6px;">
+                            {{ task[2] }}
+                        </span>
+                    </td>
+                    <td style="font-size: 13.5px; font-weight: 500;">{{ task[3] }}</td>
+                    <td style="font-weight: 600; color: var(--danger); font-size: 13px;"><i class="fa-regular fa-calendar-times" style="margin-right: 4px;"></i> {{ task[4] }}</td>
+                    <td style="padding-right: 25px; text-align: center;">
+                        <span class="status-badge {% if task[5] == 'Completed' %}completed{% elif task[5] == 'In Progress' %}in-progress{% else %}pending{% endif %}" style="padding: 3px 10px; font-size: 11px;">
+                            {{ task[5] }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-light); padding: 40px 0;">No active tasks assigned to your direct reports.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <!-- Pending Approvals section with ML Risk details -->
 <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;"><i class="fa-solid fa-clipboard-check" style="color: var(--primary); margin-right: 8px;"></i> Pending Leave Applications</h3>
 
@@ -93,31 +138,25 @@
             <!-- AI Staffing & Deadline Collision Risk Assessment Panel -->
             <div class="ai-risk-panel">
                 <div class="ai-header">
-                    <i class="fa-solid fa-microchip-ai" style="font-size: 16px;"></i> AI Staffing & Deadline Analyzer
+                    <i class="fa-solid fa-microchip-ai" style="font-size: 16px;"></i> AI Operational Risk Analyzer (Random Forest)
                 </div>
                 
-                <div class="ai-metric-grid">
+                <div class="ai-metric-grid" style="grid-template-columns: 1.2fr 0.8fr;">
                     <div class="ai-metric-box">
-                        <div class="ai-label">Staffing Coverage Risk</div>
-                        <div class="ai-val {% if req.ml.staffing_risk == 'High' %}high{% elif req.ml.staffing_risk == 'Medium' %}medium{% else %}low{% endif %}">
-                            {{ req.ml.staffing_risk }} Risk
+                        <div class="ai-label">RF Predicted Risk</div>
+                        <div class="ai-val {% if req.ml.risk_level == 'High' %}high{% elif req.ml.risk_level == 'Medium' %}medium{% else %}low{% endif %}">
+                            {{ req.ml.risk_level }} Risk
                         </div>
                         <div style="font-size: 10.5px; color: var(--text-light); margin-top: 3px; font-weight: 600;">
-                            {{ req.ml.overlap_count }} overlap(s) ({{ req.ml.overlap_ratio_pct }}% team)
+                            Confidence: {{ req.ml.confidence_pct }}%
                         </div>
                     </div>
                     <div class="ai-metric-box">
-                        <div class="ai-label">Deadline Proximity Risk</div>
-                        <div class="ai-val {% if req.ml.deadline_risk == 'Critical' %}critical{% elif req.ml.deadline_risk == 'Risky' %}risky{% else %}safe{% endif %}">
-                            {{ req.ml.deadline_risk }}
-                        </div>
-                        <div style="font-size: 10.5px; color: var(--text-light); margin-top: 3px; font-weight: 600;">
-                            {% if req.ml.days_to_deadline == 99 %}
-                            No pending deadlines
-                            {% else %}
-                            Deadline in {{ req.ml.days_to_deadline }} day(s)
-                            {% endif %}
-                            {% if req.ml.busy_season %} (Busy Season){% endif %}
+                        <div class="ai-label">Input Features</div>
+                        <div style="font-size: 11px; margin-top: 3px; color: var(--text-body); font-weight: 600; line-height: 1.4;">
+                            • Staff Avail: <strong>{{ req.ml.available_staff }}</strong><br>
+                            • Deadline: <strong>{% if req.ml.days_to_deadline == 99 %}None{% else %}{{ req.ml.days_to_deadline }}d{% endif %}</strong><br>
+                            • Season: <strong>{% if req.ml.busy_season %}Peak{% else %}Off-peak{% endif %}</strong>
                         </div>
                     </div>
                 </div>

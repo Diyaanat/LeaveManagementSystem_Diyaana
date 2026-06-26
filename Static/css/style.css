@@ -634,13 +634,14 @@ a:hover {
 .calendar-cell {
     background-color: #f8fafc;
     border-radius: var(--radius-sm);
-    min-height: 85px;
+    min-height: 100px;
     padding: 8px;
     display: flex;
     flex-direction: column;
     gap: 4px;
     border: 1px solid transparent;
     transition: var(--transition);
+    overflow-y: auto;
 }
 
 .calendar-cell.other-month {

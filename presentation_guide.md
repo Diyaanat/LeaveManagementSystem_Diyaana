@@ -1,116 +1,160 @@
 # Presentation Guide: LeavePortal Leave Management System
 
-Keep this guide open in VS Code during your presentation tomorrow. It outlines the directory structure, database tables, machine learning model details, and a step-by-step script for your live demonstration.
+Use this slide-by-slide outline and speaker notes script for your PowerPoint presentation tomorrow. Keep this file open in VS Code to reference while demonstrating the code.
 
 ---
 
-## 1. Directory Structure Walkthrough (Show in VS Code)
-
-When walking through the codebase in VS Code, you can explain the files as follows:
-
-*   **`app.py`** ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/app.py]): The main backend engine. Handles database connections (with automatic SQLite fallback), sessions, routing logic, leave application rules, and feeds data to the ML engine.
-*   **`ml_engine.py`** ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/ml_engine.py]): The Machine Learning processor. Implements a Decision Tree classifier in pure Python without external dependencies, ensuring it runs on any system.
-*   **`mailer.py`** ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/mailer.py]): The email notification engine. Attempts SMTP mail sending and falls back to writing formatted logs inside `sent_emails.log` in development.
-*   **`database.sql`** ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/database.sql]): The database setup script defining tables, keys, and self-referencing hierarchy rules.
-*   **`sent_emails.log`** ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/sent_emails.log]): A log file showing real-time email dispatches for actions like login, leave requests, and manager decisions.
-*   **`Static/`**:
-    *   `css/style.css` ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/Static/css/style.css]): Clean UI styled using modern Vanilla CSS custom properties, featuring glassmorphism, responsive columns, and transition effects.
-    *   `js/script.js` ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/Static/js/script.js]): Handles interactive elements like the dynamic password strength checklist, automatic leave-length calculations (excluding weekends), task completion toggles, and drawing the month calendar.
-*   **`templates/`**:
-    *   `base.html` ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/templates/base.html]): The master layout featuring the unified sidebar.
-    *   `login.html` & `Register.html`: Glassmorphic authentication screens.
-    *   `home.html` ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/templates/home.html]): The core workspace dashboard housing the interactive calendar.
-    *   `leaveRequest.html`: Form to request leaves and logs of personal leave history.
-    *   `manager_dashboard.html` ([file:///c:/Users/diyaa/OneDrive/Desktop/LeaveManagementSystem_Diyaana/templates/manager_dashboard.html]): The manager portal containing direct report listings and cards representing pending approvals equipped with AI risk scoring metrics.
-    *   `profile.html` & `account.html`: User profile sync and password reset views.
+## Slide 1: Title Slide
+*   **Slide Title**: LeavePortal: A Hierarchical Leave Management System with ML Risk Assessment
+*   **Subtitle**: Industry-Standard Random Forest Integration for Operations Coverage & Task Collision Risk
+*   **Presenter**: [Your Name]
+*   **Speaker Notes**:
+    > "Hello everyone and [Mentor Name]. Today, I will be demonstrating LeavePortal, a web application designed to optimize how companies approve and manage employee leave. Unlike traditional systems that look at employees in isolation, LeavePortal maps organizational hierarchies and uses a Scikit-Learn Random Forest Classifier to assess team coverage and task deadline conflicts in real-time."
 
 ---
 
-## 2. Database Schema & Tables
-
-Explain that the system uses three interconnected tables to manage the organization:
-
-### `users` Table
-*   **Purpose**: Stores all users in the system.
-*   **Key Fields**:
-    *   `role`: Can be `'employee'` or `'manager'`. Both use the same login layout, but managers gain access to the "Leave Approval" tab.
-    *   `manager_id`: A self-referencing foreign key linking to `users.id`. This represents the reporting chain (e.g., an employee reports to a manager, and a manager can report to a director).
-    *   `total_leaves` & `leaves_taken`: Tracks individual leave balances.
-
-### `leave_requests` Table
-*   **Purpose**: Stores leave applications filed by employees.
-*   **Key Fields**:
-    *   `user_id`: Foreign key linking to the employee in the `users` table.
-    *   `status`: Tracked as `'Pending'`, `'Approved'`, or `'Rejected'`.
-    *   `remarks`: Stores the reason written by the manager if the leave is rejected.
-
-### `tasks` Table
-*   **Purpose**: Tracks individual projects, task items, and upcoming deadlines.
-*   **Key Fields**:
-    *   `user_id`: The assignee's ID. Used to check if they have critical task deadlines approaching while they are on leave.
+## Slide 2: The Problem Statement (Why this should exist)
+*   **Key Points**:
+    *   *Siloed Leave Approvals*: Standard portals let managers approve leaves without seeing overlaps with active teammate leaves or approaching deadlines.
+    *   *Operational Understaffing*: A manager might approve a leave only to discover later that the team is understaffed (e.g. 2 out of 3 developers off).
+    *   *Missed Deadlines*: Leaves approved close to critical project/task deadlines lead to missed delivery milestones.
+    *   *Separated Logins*: Managers and employees are often forced into separate systems or roles, causing friction.
+*   **Speaker Notes**:
+    > "The core issue with current leave portals is that they treat leave requests as isolated events. In reality, an employee's absence impacts the whole team. LeavePortal solves this by linking leave requests with team availability and task deadlines, and uses machine learning to alert managers of potential operational understaffing or project delays *before* they approve the request."
 
 ---
 
-## 3. How the Machine Learning Predictor Works
-
-If asked **"How does the AI predict risk?"**, open `ml_engine.py` and explain these core components:
-
-1.  **Decision Tree from Scratch**: We built a custom decision tree class (`DecisionTree`) using math entropy. This splits scenarios recursively to find the most clean decision boundary.
-2.  **Staffing Coverage Risk**:
-    *   *Features calculated*: Manager's total team size, number of overlapping approved leaves during the request period, the team's total pending tasks.
-    *   *Logic*: If a large percentage of a manager's team is already on leave (high overlap ratio), the tree classifies this request as **High Staffing Risk**.
-3.  **Task Deadline Collision Risk**:
-    *   *Features calculated*: Number of days between the requested leave start date and the employee's nearest task deadline, whether it is a busy season, and the employee's active task count.
-    *   *Logic*: If the start of a leave overlaps with or falls within 3 days of a critical task deadline, or if it overlaps with a busy season, the tree classifies it as **Critical/Risky**.
-4.  **Actionable Recommendations**: Integrates these predictions to output a recommendation like *"Safe to Approve"* or *"Reject (High Risk of operation coverage or deadline collision)"*.
+## Slide 3: The Technology Stack
+*   **Frontend**:
+    *   HTML5 (semantic structuring)
+    *   Vanilla CSS3 (designed with a custom HSL property system and modern glassmorphic layouts)
+    *   Vanilla JavaScript (handling password checkers, asynchronous tasks, and calendar rendering)
+*   **Backend & DB**:
+    *   Python 3.x & Flask (routing, session state management)
+    *   Flask-Bcrypt (secure password hashing)
+    *   SQLite3 (local relational database used for zero-dependency development and seeding)
+    *   MySQL Client (production-ready database connector)
+*   **Machine Learning**:
+    *   Scikit-Learn (`RandomForestClassifier`)
+    *   NumPy & Pandas (data structures and manipulation)
+*   **Speaker Notes**:
+    > "For the tech stack, we went with a lightweight Python/Flask backend and a clean, responsive glassmorphic frontend built in Vanilla CSS and JavaScript. For the intelligence layer, we installed Scikit-Learn, NumPy, and Pandas to run an ensemble Random Forest model directly in our backend. We also implemented a database wrapper that uses MySQL, but seamlessly falls back to local SQLite if MySQL is offline."
 
 ---
 
-## 4. Live Demo Script (Step-by-Step Presentation)
+## Slide 4: Database Schema & Relationships (Show tables)
+*   **The 3 Connected Tables**:
+    *   `users`: Tracks names, logins, roles, and a self-referencing `manager_id`.
+    *   `leave_requests`: Stores applied leave categories, start/end dates, reason, status (Pending/Approved/Rejected), and manager remarks.
+    *   `tasks`: Tracks projects, task descriptions, deadlines, and assignees.
+*   **Visual Relationship Diagram (Mermaid)**:
+    ```
+    +------------------+         +--------------------+
+    |      users       |1       *|   leave_requests   |
+    |------------------|<--------|--------------------|
+    | id (PK)          |         | id (PK)            |
+    | name             |         | user_id (FK)       |
+    | email            |         | start_date         |
+    | manager_id (FK)  |--+      | end_date           |
+    +------------------+  |      | status             |
+      ^                   |      +--------------------+
+      |                   |
+      +-------------------+      +--------------------+
+      1                 *        |       tasks        |
+                                 |--------------------|
+                                 | id (PK)            |
+                                 | user_id (FK)       |
+                                 | deadline           |
+                                 +--------------------+
+    ```
+*   **Speaker Notes**:
+    > "Here is our database architecture. We have three main tables. The key to our organizational hierarchy is the `manager_id` inside the `users` table, which points back to the `id` of another user. This establishes a reporting structure where managers can view leaves for only their direct reports. `leave_requests` and `tasks` both reference the `users` table via foreign keys."
 
-Follow this sequence to deliver a perfect live demonstration:
+---
 
-### Step 1: Start the server and load the site
-1.  Run the application in your terminal: `venv\Scripts\python.exe app.py`
-2.  Open **[http://localhost:5001](http://localhost:5001)**.
-3.  Show the glassmorphic login screen.
+## Slide 5: Core Features
+*   **Slide Bullet Points**:
+    *   **Unified Workspace**: Single login portal for everyone. Managers automatically get a "Leave Approval" tab based on database roles.
+    *   **Interactive Month Calendar**: Shows personal leaves, teammate leaves, and task deadlines in a single visual grid.
+    *   **Real-Time Forms**: Live password criteria validator, live leave duration calculator (skips weekends automatically).
+    *   **Development Mail Logger**: Writes rich HTML emails to a local `sent_emails.log` file on actions like registration, login, and approvals.
+    *   **Subordinate Tasks & Progress Tracker**: Let's managers monitor active workloads and deadlines of direct reports in real-time.
+*   **Speaker Notes**:
+    > "LeavePortal offers a unified workspace. Employees can apply for leave, monitor their task deadlines, check their teammates' leaves on an interactive calendar, and track their password strength. Managers can monitor their direct reports' leave history and view a real-time 'Subordinate Tasks & Progress Tracker' to see exactly what deliverables are currently active across their team."
 
-### Step 2: Show the Register Form & Live Password Strength
-1.  Click **Create an account**.
-2.  Start typing a password (e.g. `abc`). Show how the red checklist criteria remain greyed out.
-3.  Type a strong password (e.g. `SecurePass@123`). Show the criteria turn green.
-4.  Point out the **Reporting Manager** dropdown, which lists current managers loaded from the database.
-5.  *Do not register a new user yet—go back to login to use the pre-seeded accounts.*
+---
 
-### Step 3: Login as Charlie (Employee)
-1.  Login with: **Email**: `charlie@company.com` | **Password**: `password123`.
-2.  **Dashboard Overview**:
-    *   Show the metric cards: Allocation (24), Utilized (4), Remaining (20).
-    *   Show the **Leave & Deadline Calendar**: Explain that Charlie can see his tasks, approved leaves, and teammate leaves.
-    *   Show the **My Active Tasks** widget. Toggle a checkbox (e.g., click check on "Platform Migration"). Notice the text gets crossed out in real-time.
-    *   Show the **Leave Statistics** doughnut chart.
+## Slide 6: The Machine Learning Engine (How it works under the hood)
+*   **Model**: Scikit-Learn `RandomForestClassifier` (100 estimators, max depth 5).
+*   **Input Features**:
+    1.  `available_staff`: Number of teammates (direct reports) active during the requested leave window.
+    2.  `days_to_deadline`: Number of days from the leave start date to the employee's nearest task deadline.
+    3.  `season`: Workload intensity flag ($0$: Off-peak, $1$: Peak project release seasons in June, July, November, and December).
+*   **Output**: Risk Level (`Low`, `Medium`, or `High`) and the model's prediction **Confidence %** (using `predict_proba()`).
+*   **Speaker Notes**:
+    > "Our ML engine is a Random Forest Classifier. A Random Forest builds 100 separate decision trees on random subsets of the data and takes the majority vote. When a manager opens a request, our backend dynamically calculates: how many other team members are available, how many days Charlie has until his nearest task is due, and if it is a busy release season. The model outputs a predicted risk category and our confidence percentage."
 
-### Step 4: Apply for Leave
-1.  Click **Apply Leave** in the sidebar.
-2.  Select **Sick Leave** or **Menstrual Leave**.
-3.  Choose dates. Pick a Friday to next Monday (e.g. Friday to Monday).
-4.  Point out the live calculation box showing: *"Total leave days: 2 business day(s) (excluding weekends)"*. This proves that Saturdays/Sundays do not deduct leaves.
-5.  Type a reason and click **Submit Application**.
-6.  Look at the history table below to see the new request logged as `Pending`.
+---
 
-### Step 5: Check Email Logs
-1.  Open **`sent_emails.log`** in VS Code.
-2.  Scroll to the bottom. Show the formatted HTML email alert notifying Charlie's manager (Alice Smith) that Charlie has requested leave.
+## Slide 7: Training Data & Prototype Status
+*   **Training Data Source**:
+    *   Synthetically generated dataset ($1,000$ historical request rows).
+    *   Maps company rules (e.g. leaving during a busy season with tasks due in under 7 days is labeled High Risk).
+*   **Prototype Status ("Training Mode")**:
+    *   Currently in **Prototype & Training Mode**.
+    *   We use simulated business parameters to train the model on startup.
+    *   *Why?* To demonstrate the complete functionality and math without requiring months of historical company records.
+*   **Speaker Notes**:
+    > "It is important to note that the system is currently in a prototype and training phase. The model is trained on startup using 1,000 synthetically generated historical request entries representing logical company scenarios. As a prototype, it demonstrates the machine learning pipeline from database queries to model classification, but is designed to switch to real company history once deployed."
 
-### Step 6: Log out and log in as Alice (Manager)
-1.  Click the power icon at the bottom of the sidebar.
-2.  Log in with: **Email**: `alice@company.com` | **Password**: `password123`.
-3.  Point out that Alice has an extra tab in her sidebar: **Leave Approval**.
-4.  Click **Leave Approval**.
-5.  Show the **Subordinate Roster** listing Charlie Dev and David Quality with their balances.
-6.  Look at the **Pending Leave Applications** card:
-    *   Show that Alice can see Charlie's request, reason, and his recent leave history.
-    *   Highlight the **AI Staffing & Deadline Analyzer** panel. Point out the **Staffing Coverage Risk** and **Deadline Proximity Risk** scores computed by our Decision Tree, along with the recommendation.
-7.  Click **Approve** or **Reject** (if Reject, type a remark e.g., *"Projects are understaffed"*).
-8.  Show that the request disappears.
-9.  Open `sent_emails.log` to prove that the employee received an email notifying them of their application update!
+---
+
+## Slide 8: Setbacks Faced & Edge Cases Handled
+*   **Setbacks Faced**:
+    *   *Windows Port 5000 Conflict*: Port 5000 is occupied by system services on Windows 11. Shifting the app to port 5001 and binding to `0.0.0.0` resolved connection issues.
+    *   *Local SQLite Fallback*: Created a custom database manager class to automatically handle SQL syntax differences between SQLite and MySQL so the app runs immediately.
+    *   *Calendar Timezone Shifts*: JavaScript's `new Date("YYYY-MM-DD")` parses dates as UTC, causing event boxes to shift back by one day in local timezones. We solved this by writing a custom local date string parser.
+    *   *Overdue Task Collision Bug*: Fixed a bug where tasks with deadlines in the past (overdue tasks) caused all future leave requests to evaluate to a `0-day deadline` and flag as High Risk. We rewrote the backend to ignore tasks due in the past.
+*   **Edge Cases Handled**:
+    *   Omit Saturdays and Sundays from leave deductions.
+    *   Block overlaps with already approved leaves.
+    *   Block past dates in the leave form.
+*   **Speaker Notes**:
+    > "During development, we overcame several technical setbacks. Windows 11 often blocks port 5000, so we moved to port 5001. We also resolved a bug where calendar event dates shifted back one day in local timezones due to UTC date parsing. The current drawbacks are that we use synthetic data for training and have a basic task tracker rather than external integrations."
+
+---
+
+## Slide 9: Project Drawbacks & Future Work
+*   **Drawbacks**:
+    *   *Cold Start*: Requires bootstrapping before real company history is collected.
+    *   *Isolated Tasks*: Tasks are created inside the portal rather than syncing with external systems.
+*   **Future Features**:
+    *   *API Integrations*: Sync tasks and deadlines directly with JIRA, GitHub, or Trello.
+    *   *Vacation Forecasting*: Add a time-series forecasting model to predict department leave trends.
+    *   *SMTP Gateway*: Hook up real email servers (e.g. SendGrid or Amazon SES) for real email delivery.
+*   **Speaker Notes**:
+    > "Current drawbacks include relying on synthetic data for initial training and having a simple, local task manager. In the future, we plan to sync tasks directly with JIRA and GitHub APIs, integrate forecasting models to predict vacation spikes, and configure SMTP servers like SendGrid to deliver real email notifications."
+
+---
+
+## Slide 10: My Contribution
+*   **Slide Bullet Points**:
+    *   Designed the unified, mobile-responsive glassmorphic sidebar layout.
+    *   Added a **Subordinate Tasks & Progress Tracker** card to let managers monitor team task completions in real-time.
+    *   Migrated the intelligence layer to Scikit-Learn's Random Forest classifier.
+    *   Wrote the database wrapper class supporting MySQL and SQLite fallback.
+    *   Implemented the local email logging fallback for offline dev audit.
+*   **Speaker Notes**:
+    > "My key contributions were designing the unified workspace frontend, implementing the Scikit-Learn Random Forest pipeline, setting up the adaptive database engine, adding the team task tracker card for managers, and writing the local email logging fallback."
+
+---
+
+## Slide 11: Mentorship Q&A Cheat Sheet (Preparation for Questions)
+*   **Q: Why choose Random Forest over a single Decision Tree?**
+    *   *A*: A single decision tree suffers from high variance and can easily overfit the training data. Random Forest averages the predictions of 100 trees, reducing variance and yielding a more stable, robust model.
+*   **Q: How does the model predict risk when there isn't real company history?**
+    *   *A*: We generate 1,000 mock evaluations in-memory on startup to train the classifier. The model learns these simulated patterns. Once deployed, the training code can be switched to load actual historical approvals.
+*   **Q: What happens to registered employees if the server restarts?**
+    *   *A*: They are saved persistently inside the local SQLite database file `leave_system.db`. Only the first launch seeds the database; subsequent restarts preserve all registered users, tasks, and leave histories.
+*   **Q: How do you show the database tables in VS Code?**
+    *   *A*: Install the **SQLite Viewer** extension in VS Code. Simply double-click `leave_system.db` in your explorer to view the tables as spreadsheets.

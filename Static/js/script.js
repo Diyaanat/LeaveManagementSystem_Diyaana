@@ -131,11 +131,21 @@ function initInteractiveCalendar() {
     // Load calendar events from global variable defined in templates
     const rawEvents = window.calendarEvents || [];
     
+    // Timezone-safe local date string parser to prevent calendar date offsets
+    function parseLocalDateString(dateStr) {
+        if (!dateStr) return null;
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+        return new Date(dateStr);
+    }
+
     // Parse calendar events date strings
     const events = rawEvents.map(e => ({
         ...e,
-        startDate: new Date(e.start),
-        endDate: new Date(e.end)
+        startDate: parseLocalDateString(e.start),
+        endDate: parseLocalDateString(e.end)
     }));
 
     let currentDate = new Date();
